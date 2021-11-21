@@ -25,11 +25,17 @@ const App = () => {
 
   return (
     <NavigationContainer>
-      <Tab.Navigator>
+      <Tab.Navigator initialRouteName="Control"
+
+      screenOptions={{
+        tabBarActiveTintColor: '#A4AC86',
+        tabBarInactiveTintColor: '#333D29',
+      }}>
         <Tab.Screen
           name="Camera"
           component={CameraScreen}
           options={{
+
             tabBarIcon: ({ color, size }) => (
               <FontAwesomeIcon icon={faCamera} size={size} color={color} />
             ),

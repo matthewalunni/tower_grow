@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { View, Text, SafeAreaView, StyleSheet, FlatList } from "react-native";
-import { ListItem } from "react-native-elements/dist/list/ListItem";
 import { Switch } from "react-native-elements/dist/switch/switch";
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 class ControlScreen extends Component {
     constructor(props) {
@@ -10,10 +10,12 @@ class ControlScreen extends Component {
             ledIsEnabled: false,
             pumpIsEnabled: false,
             scheduleIsEnabled: false,
+            currentDate: new Date(),
         };
         this.toggleSwitchLED = this.toggleSwitchLED.bind(this);
         this.toggleSwitchPump = this.toggleSwitchPump.bind(this);
         this.toggleSwitchSchedule = this.toggleSwitchSchedule.bind(this);
+        this.LEDOnTimeChange = this.LEDOnTimeChange.bind(this);
     }
 
     toggleSwitchLED = () => {
@@ -48,6 +50,14 @@ class ControlScreen extends Component {
         });
     }
 
+    LEDOnTimeChange = (event, selectedDate) => {
+        console.log("changing time")
+    }
+
+    LEDOffTimeChange = (event, selectedDate) => {
+        console.log("changing time")
+    }
+
     render() {
         if (this.state.scheduleIsEnabled) {
             return (
@@ -60,9 +70,9 @@ class ControlScreen extends Component {
                             <View style={styles.listItem}>
                                 <Text style={styles.listItemLeft}>LED Lights</Text>
                                 <Switch
-                                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                                    thumbColor={this.state.ledIsEnabled ? "#f5dd4b" : "#f4f3f4"}
-                                    ios_backgroundColor="#3e3e3e"
+                                    trackColor={{ false: "#767577", true: "#A4AC86" }}
+                                    thumbColor={this.state.ledIsEnabled ? "#333D29" : "#f4f3f4"}
+                                    ios_backgroundColor="#333D29"
                                     onValueChange={this.toggleSwitchLED}
                                     value={this.state.ledIsEnabled}
                                     style={styles.listItemRight}
@@ -71,9 +81,9 @@ class ControlScreen extends Component {
                             <View style={styles.listItem}>
                                 <Text style={styles.listItemLeft}>Pump</Text>
                                 <Switch
-                                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                                    thumbColor={this.state.pumpIsEnabled ? "#f5dd4b" : "#f4f3f4"}
-                                    ios_backgroundColor="#3e3e3e"
+                                    trackColor={{ false: "#767577", true: "#A4AC86" }}
+                                    thumbColor={this.state.pumpIsEnabled ? "#333D29" : "#f4f3f4"}
+                                    ios_backgroundColor="#333D29"
                                     onValueChange={this.toggleSwitchPump}
                                     value={this.state.pumpIsEnabled}
                                 />
@@ -81,9 +91,9 @@ class ControlScreen extends Component {
                             <View style={styles.listItem}>
                                 <Text style={styles.listItemLeft}>LED Schedule</Text>
                                 <Switch
-                                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                                    thumbColor={this.state.scheduleIsEnabled ? "#f5dd4b" : "#f4f3f4"}
-                                    ios_backgroundColor="#3e3e3e"
+                                    trackColor={{ false: "#767577", true: "#A4AC86" }}
+                                    thumbColor={this.state.scheduleIsEnabled ? "#333D29" : "#f4f3f4"}
+                                    ios_backgroundColor="#333D29"
                                     onValueChange={this.toggleSwitchSchedule}
                                     value={this.state.scheduleIsEnabled}
                                 />
@@ -91,23 +101,25 @@ class ControlScreen extends Component {
 
                             <View style={styles.listItem}>
                                 <Text style={styles.listItemLeft}>LED On Time</Text>
-                                <Switch
-                                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                                    thumbColor={this.state.ledIsEnabled ? "#f5dd4b" : "#f4f3f4"}
-                                    ios_backgroundColor="#3e3e3e"
-                                    onValueChange={this.toggleSwitch}
-                                    value={this.state.ledIsEnabled}
-                                />
+                                <DateTimePicker
+                                    testID="dateTimePicker"
+                                    value={new Date()}
+                                    mode={'time'}
+                                    is24Hour={false}
+                                    display="compact"
+                                    onChange={this.LEDOnTimeChange} 
+                                    style={styles.dateTimePicker}/>
                             </View>
                             <View style={styles.listItem}>
                                 <Text style={styles.listItemLeft}>LED Off Time</Text>
-                                <Switch
-                                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                                    thumbColor={this.state.ledIsEnabled ? "#f5dd4b" : "#f4f3f4"}
-                                    ios_backgroundColor="#3e3e3e"
-                                    onValueChange={this.toggleSwitch}
-                                    value={this.state.ledIsEnabled}
-                                />
+                                <DateTimePicker
+                                    testID="dateTimePicker"
+                                    value={new Date()}
+                                    mode={'time'}
+                                    is24Hour={false}
+                                    display="compact"
+                                    onChange={this.LEDOffTimeChange} 
+                                    style={styles.dateTimePicker}/>
                             </View>
                         </View>
                     </View>
@@ -125,9 +137,9 @@ class ControlScreen extends Component {
                             <View style={styles.listItem}>
                                 <Text style={styles.listItemLeft}>LED Lights</Text>
                                 <Switch
-                                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                                    thumbColor={this.state.ledIsEnabled ? "#f5dd4b" : "#f4f3f4"}
-                                    ios_backgroundColor="#3e3e3e"
+                                    trackColor={{ false: "#767577", true: "#A4AC86" }}
+                                    thumbColor={this.state.ledIsEnabled ? "#333D29" : "#f4f3f4"}
+                                    ios_backgroundColor="#333D29"
                                     onValueChange={this.toggleSwitchLED}
                                     value={this.state.ledIsEnabled}
                                     style={styles.listItemRight}
@@ -136,9 +148,9 @@ class ControlScreen extends Component {
                             <View style={styles.listItem}>
                                 <Text style={styles.listItemLeft}>Pump</Text>
                                 <Switch
-                                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                                    thumbColor={this.state.pumpIsEnabled ? "#f5dd4b" : "#f4f3f4"}
-                                    ios_backgroundColor="#3e3e3e"
+                                    trackColor={{ false: "#767577", true: "#A4AC86" }}
+                                    thumbColor={this.state.pumpIsEnabled ? "#333D29" : "#f4f3f4"}
+                                    ios_backgroundColor="#333D29"
                                     onValueChange={this.toggleSwitchPump}
                                     value={this.state.pumpIsEnabled}
                                 />
@@ -146,9 +158,9 @@ class ControlScreen extends Component {
                             <View style={styles.listItem}>
                                 <Text style={styles.listItemLeft}>LED Schedule</Text>
                                 <Switch
-                                    trackColor={{ false: "#767577", true: "#81b0ff" }}
-                                    thumbColor={this.state.scheduleIsEnabled ? "#f5dd4b" : "#f4f3f4"}
-                                    ios_backgroundColor="#3e3e3e"
+                                    trackColor={{ false: "#767577", true: "#A4AC86" }}
+                                    thumbColor={this.state.scheduleIsEnabled ? "#333D29" : "#f4f3f4"}
+                                    ios_backgroundColor="#333D29"
                                     onValueChange={this.toggleSwitchSchedule}
                                     value={this.state.scheduleIsEnabled}
                                 />
@@ -166,7 +178,7 @@ const styles = StyleSheet.create({
         opacity: 1,
         position: "absolute",
         backgroundColor: "rgba(255, 255, 255, 0)",
-        color: "rgba(51, 61, 41, 1)",
+        color: "#333D29",
         fontSize: 34,
         fontWeight: "400",
         fontStyle: "normal",
@@ -176,15 +188,15 @@ const styles = StyleSheet.create({
         height: 74,
         left: 39,
         top: 88,
-        borderColor: "#FF0000", //red
-        borderWidth: 1,
+        // borderColor: "#FF0000", //red
+        // borderWidth: 1,
     },
     control_list: {
         flex: 1,
         opacity: 1,
         position: "absolute",
         backgroundColor: "rgba(255, 255, 255, 0)",
-        color: "rgba(51, 61, 41, 1)",
+        color: "#333D29",
         fontSize: 24,
         fontWeight: "400",
         fontStyle: "normal",
@@ -192,15 +204,15 @@ const styles = StyleSheet.create({
         textAlign: "left",
         left: 39,
         top: 276,
-        borderColor: "#FF0000", //red
-        borderWidth: 1,
+        // borderColor: "#FF0000", //red
+        // borderWidth: 1,
         width: 312,
     },
     listItem: {
         flex: 1,
         flexDirection: "row",
-        borderColor: "#FF0000", //red
-        borderWidth: 1,
+        // borderColor: "#FF0000", //red
+        // borderWidth: 1,
         justifyContent: "center",
         alignItems: "center",
         textAlignVertical: 'center',
@@ -217,5 +229,12 @@ const styles = StyleSheet.create({
         alignItems: "center",
         textAlignVertical: 'center',
     },
+    dateTimePicker: {
+        flex: 1,
+        width: 312,
+        //backgroundColor: 'white',
+        // borderColor: "#FF0000", //red
+        // borderWidth: 1,
+    }
 });
 export default ControlScreen;
