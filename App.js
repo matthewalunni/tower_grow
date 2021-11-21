@@ -1,5 +1,5 @@
 import { NavigationContainer } from '@react-navigation/native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   StyleSheet,
 } from 'react-native';
@@ -12,9 +12,16 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faHome, faCamera, faSlidersH } from '@fortawesome/free-solid-svg-icons'
 
+import SplashScreen from 'react-native-splash-screen';
+
 const Tab = createBottomTabNavigator();
 
 const App = () => {
+  useEffect(() => {
+    SplashScreen.hide();
+  }, []);
+
+
 
   return (
     <NavigationContainer>
