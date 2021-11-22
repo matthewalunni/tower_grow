@@ -2,6 +2,16 @@ import React, { Component } from "react";
 import { View, Text, SafeAreaView, StyleSheet, FlatList } from "react-native";
 import { Switch } from "react-native-elements/dist/switch/switch";
 import DateTimePicker from '@react-native-community/datetimepicker';
+import PubNub from 'pubnub';
+import { PubNubProvider } from "pubnub-react";
+
+const pubnub = new PubNub({
+    publishKey: 'pub-c-8bca52f9-3ed6-4c9e-a6f5-0dd08fefa83e',
+    subscribeKey: 'sub-c-ef4d649a-440f-11ec-8ee6-ce954cd2c970'
+});
+
+const channel = 'MattsChannel'
+
 
 class ControlScreen extends Component {
     constructor(props) {
@@ -16,26 +26,41 @@ class ControlScreen extends Component {
         this.toggleSwitchPump = this.toggleSwitchPump.bind(this);
         this.toggleSwitchSchedule = this.toggleSwitchSchedule.bind(this);
         this.LEDOnTimeChange = this.LEDOnTimeChange.bind(this);
+        this.LEDOffTimeChange = this.LEDOffTimeChange.bind(this);
+        this.renderScheduleElement = this.renderScheduleElement.bind(this);
+        this.sendMessage = this.sendMessage.bind(this);
+        this.receiveMessage = this.receiveMessage.bind(this);
+    }
+
+    sendMessage = (message) => {
+        pubnub.publish({
+            message: message,
+            channel: channel,
+        });
+    }
+
+    receiveMessage = (event) => {
+        if (event.message) {
+            console.log(event.message);
+        }
     }
 
     toggleSwitchLED = () => {
+        let message = "";
+        //if the switch is off, turn the lights on
+        if (!this.state.ledIsEnabled) {
+            message = "LED is off, turning on";
+            console.log(message);
+        }
+        //if the switch is on, turn the lights off
+        else {
+            message = "LED is on, turning off";
+            console.log(message);
+        }
+        this.sendMessage(message);
         this.setState({
             ledIsEnabled: !this.state.ledIsEnabled,
         });
-
-        //if the switch is on, turn the lights on
-        if (this.state.ledIsEnabled) {
-            this.setState({
-                setIsEnabled: true
-            });
-        }   //if the switch is off, turn the lights off
-        else {
-            this.setState({
-                setIsEnabled: false
-            });
-        }
-
-
     }
 
     toggleSwitchPump = () => {
@@ -58,120 +83,84 @@ class ControlScreen extends Component {
         console.log("changing time")
     }
 
-    render() {
+    renderScheduleElement = () => {
         if (this.state.scheduleIsEnabled) {
             return (
-                <SafeAreaView>
-                    <View>
-                        <Text
-                            style={styles.control_hello}>Hello,
-                            Let’s Control Your Garden</Text>
-                        <View style={styles.control_list}>
-                            <View style={styles.listItem}>
-                                <Text style={styles.listItemLeft}>LED Lights</Text>
-                                <Switch
-                                    trackColor={{ false: "#767577", true: "#A4AC86" }}
-                                    thumbColor={this.state.ledIsEnabled ? "#333D29" : "#f4f3f4"}
-                                    ios_backgroundColor="#333D29"
-                                    onValueChange={this.toggleSwitchLED}
-                                    value={this.state.ledIsEnabled}
-                                    style={styles.listItemRight}
-                                />
-                            </View>
-                            <View style={styles.listItem}>
-                                <Text style={styles.listItemLeft}>Pump</Text>
-                                <Switch
-                                    trackColor={{ false: "#767577", true: "#A4AC86" }}
-                                    thumbColor={this.state.pumpIsEnabled ? "#333D29" : "#f4f3f4"}
-                                    ios_backgroundColor="#333D29"
-                                    onValueChange={this.toggleSwitchPump}
-                                    value={this.state.pumpIsEnabled}
-                                />
-                            </View>
-                            <View style={styles.listItem}>
-                                <Text style={styles.listItemLeft}>LED Schedule</Text>
-                                <Switch
-                                    trackColor={{ false: "#767577", true: "#A4AC86" }}
-                                    thumbColor={this.state.scheduleIsEnabled ? "#333D29" : "#f4f3f4"}
-                                    ios_backgroundColor="#333D29"
-                                    onValueChange={this.toggleSwitchSchedule}
-                                    value={this.state.scheduleIsEnabled}
-                                />
-                            </View>
-
-                            <View style={styles.listItem}>
-                                <Text style={styles.listItemLeft}>LED On Time</Text>
-                                <DateTimePicker
-                                    testID="dateTimePicker"
-                                    value={new Date()}
-                                    mode={'time'}
-                                    is24Hour={false}
-                                    display="compact"
-                                    onChange={this.LEDOnTimeChange} 
-                                    style={styles.dateTimePicker}/>
-                            </View>
-                            <View style={styles.listItem}>
-                                <Text style={styles.listItemLeft}>LED Off Time</Text>
-                                <DateTimePicker
-                                    testID="dateTimePicker"
-                                    value={new Date()}
-                                    mode={'time'}
-                                    is24Hour={false}
-                                    display="compact"
-                                    onChange={this.LEDOffTimeChange} 
-                                    style={styles.dateTimePicker}/>
-                            </View>
-                        </View>
+                <>
+                    <View style={styles.listItem}>
+                        <Text style={styles.listItemLeft}>LED On Time</Text>
+                        <DateTimePicker
+                            testID="dateTimePicker"
+                            value={new Date()}
+                            mode={'time'}
+                            is24Hour={false}
+                            display="compact"
+                            onChange={this.LEDOnTimeChange}
+                            style={styles.dateTimePicker} />
+                    </View><View style={styles.listItem}>
+                        <Text style={styles.listItemLeft}>LED Off Time</Text>
+                        <DateTimePicker
+                            testID="dateTimePicker"
+                            value={new Date()}
+                            mode={'time'}
+                            is24Hour={false}
+                            display="compact"
+                            onChange={this.LEDOffTimeChange}
+                            style={styles.dateTimePicker} />
                     </View>
-                </SafeAreaView>
-            );
+                </>
+            )
         }
-        else {
+    }
+
+    render() {
             return (
-                <SafeAreaView>
-                    <View>
-                        <Text
-                            style={styles.control_hello}>Hello,
-                            Let’s Control Your Garden</Text>
-                        <View style={styles.control_list}>
-                            <View style={styles.listItem}>
-                                <Text style={styles.listItemLeft}>LED Lights</Text>
-                                <Switch
-                                    trackColor={{ false: "#767577", true: "#A4AC86" }}
-                                    thumbColor={this.state.ledIsEnabled ? "#333D29" : "#f4f3f4"}
-                                    ios_backgroundColor="#333D29"
-                                    onValueChange={this.toggleSwitchLED}
-                                    value={this.state.ledIsEnabled}
-                                    style={styles.listItemRight}
-                                />
-                            </View>
-                            <View style={styles.listItem}>
-                                <Text style={styles.listItemLeft}>Pump</Text>
-                                <Switch
-                                    trackColor={{ false: "#767577", true: "#A4AC86" }}
-                                    thumbColor={this.state.pumpIsEnabled ? "#333D29" : "#f4f3f4"}
-                                    ios_backgroundColor="#333D29"
-                                    onValueChange={this.toggleSwitchPump}
-                                    value={this.state.pumpIsEnabled}
-                                />
-                            </View>
-                            <View style={styles.listItem}>
-                                <Text style={styles.listItemLeft}>LED Schedule</Text>
-                                <Switch
-                                    trackColor={{ false: "#767577", true: "#A4AC86" }}
-                                    thumbColor={this.state.scheduleIsEnabled ? "#333D29" : "#f4f3f4"}
-                                    ios_backgroundColor="#333D29"
-                                    onValueChange={this.toggleSwitchSchedule}
-                                    value={this.state.scheduleIsEnabled}
-                                />
+                <PubNubProvider client={pubnub}>
+                    <SafeAreaView>
+                        <View>
+                            <Text
+                                style={styles.control_hello}>Hello,
+                                Let’s Control Your Garden</Text>
+                            <View style={styles.control_list}>
+                                <View style={styles.listItem}>
+                                    <Text style={styles.listItemLeft}>LED Lights</Text>
+                                    <Switch
+                                        trackColor={{ false: "#767577", true: "#A4AC86" }}
+                                        thumbColor={this.state.ledIsEnabled ? "#333D29" : "#f4f3f4"}
+                                        ios_backgroundColor="#333D29"
+                                        onValueChange={this.toggleSwitchLED}
+                                        value={this.state.ledIsEnabled}
+                                        style={styles.listItemRight}
+                                    />
+                                </View>
+                                <View style={styles.listItem}>
+                                    <Text style={styles.listItemLeft}>Pump</Text>
+                                    <Switch
+                                        trackColor={{ false: "#767577", true: "#A4AC86" }}
+                                        thumbColor={this.state.pumpIsEnabled ? "#333D29" : "#f4f3f4"}
+                                        ios_backgroundColor="#333D29"
+                                        onValueChange={this.toggleSwitchPump}
+                                        value={this.state.pumpIsEnabled}
+                                    />
+                                </View>
+                                <View style={styles.listItem}>
+                                    <Text style={styles.listItemLeft}>LED Schedule</Text>
+                                    <Switch
+                                        trackColor={{ false: "#767577", true: "#A4AC86" }}
+                                        thumbColor={this.state.scheduleIsEnabled ? "#333D29" : "#f4f3f4"}
+                                        ios_backgroundColor="#333D29"
+                                        onValueChange={this.toggleSwitchSchedule}
+                                        value={this.state.scheduleIsEnabled}
+                                    />
+                                </View>
+                                {this.renderScheduleElement()}
                             </View>
                         </View>
-                    </View>
-                </SafeAreaView>
+                    </SafeAreaView>
+                </PubNubProvider>
             );
         }
     }
-}
 
 const styles = StyleSheet.create({
     control_hello: {
