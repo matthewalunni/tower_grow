@@ -5,12 +5,28 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import PubNub from 'pubnub';
 import { PubNubProvider } from "pubnub-react";
 
+import AES from 'crypto-js/aes';
+import CryptoJS from 'crypto-js';
+
+
 const pubnub = new PubNub({
     publishKey: 'pub-c-8bca52f9-3ed6-4c9e-a6f5-0dd08fefa83e',
     subscribeKey: 'sub-c-ef4d649a-440f-11ec-8ee6-ce954cd2c970'
 });
 
 const channel = 'MattsChannel'
+
+const encrypt = (message) => {
+    let password = "lazydog";
+    let salt = "salt";
+    let iterations = 128;
+    let bytes = CryptoJS.PBKDF2(password, salt, { keySize: 48, iterations: iterations });
+    let iv = CryptoJS.enc.Hex.parse(bytes.toString().slice(0, 32));
+    let key = CryptoJS.enc.Hex.parse(bytes.toString().slice(32, 96));
+
+    let ciphertext = CryptoJS.AES.encrypt(message, key, { iv: iv });
+    return ciphertext.toString();
+}
 
 
 class ControlScreen extends Component {
@@ -33,6 +49,7 @@ class ControlScreen extends Component {
     }
 
     sendMessage = (message) => {
+        message = encrypt(message);
         pubnub.publish({
             message: message,
             channel: channel,
@@ -64,6 +81,18 @@ class ControlScreen extends Component {
     }
 
     toggleSwitchPump = () => {
+        let message = "";
+        //if the switch is off, turn the pump on
+        if (!this.state.pumpIsEnabled) {
+            message = "Pump is off, turning on";
+            console.log(message);
+        }
+        //if the switch is on, turn the pump off
+        else {
+            message = "Pump is on, turning off";
+            console.log(message);
+        }
+        this.sendMessage(message);
         this.setState({
             pumpIsEnabled: !this.state.pumpIsEnabled,
         });
@@ -75,12 +104,17 @@ class ControlScreen extends Component {
         });
     }
 
-    LEDOnTimeChange = (event, selectedDate) => {
-        console.log("changing time")
+    LEDOnTimeChange = (event, selectedTime) => {
+        let message = "Selected On Time: " + selectedTime.getHours() + ":" + selectedTime.getUTCMinutes();
+
+        console.log(message);
+        this.sendMessage(message);
     }
 
-    LEDOffTimeChange = (event, selectedDate) => {
-        console.log("changing time")
+    LEDOffTimeChange = (event, selectedTime) => {
+        let message = "Selected Off Time: " +  + selectedTime.getHours() + ":" + selectedTime.getUTCMinutes();
+        console.log(message);
+        this.sendMessage(message);
     }
 
     renderScheduleElement = () => {
