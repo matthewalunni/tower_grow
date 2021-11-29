@@ -3,10 +3,11 @@ from pubnub.pnconfiguration import PNConfiguration
 import time
 import smbus
 import sys
-from datetime import datetime
+from datetime import datetime, timedelta
 from base64 import b64decode
 from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2 
+from threading import Thread
 
 
 DEVICE_BUS = 1
@@ -14,6 +15,7 @@ DEVICE_ADDRESS = 0x13 # I2C device address, important that this corresponds to d
 bus = smbus.SMBus(DEVICE_BUS)
 password = "lazydog"
 salt = "salt"
+ON_TIME, OFF_TIME = None, None
 
 def initialize_pubnub(subscribe_key, publish_key, channel) -> PubNub:
     """This method initializes pubnub with the given keys and channel, and connects
@@ -85,6 +87,50 @@ def decrypt(key, salt, ciphertext):
     text = text[:-text[-1]].decode("utf-8")
     return text
 
+def handle_pubnub_message(listener, channel):
+    print("Waiting for Message")
+    message = listener.wait_for_message_on(channel)
+    message = decrypt(password, salt, message.message)
+    print("Received message: " + str(message))
+
+    if message == "LED is off, turning on": power_on_relay(1)
+    if message == "LED is on, turning off": power_off_relay(1)
+    if message == "Pump is off, turning on": power_on_relay(2)
+    if message == "Pump is on, turning off": power_off_relay(2)
+
+    if "Selected On Time:" in message:
+        selected_time = message.split(": ")[1]
+        global ON_TIME
+        ON_TIME = datetime.strptime(selected_time, '%H:%M').time()
+    
+    if "Selected Off Time:" in message:
+        selected_time = message.split(": ")[1]
+        global OFF_TIME
+        OFF_TIME = datetime.strptime(selected_time, '%H:%M').time()
+
+    return message
+
+def schedule_thread():
+    print("Checking Time")
+    current_time = datetime.now().time()
+    global ON_TIME, OFF_TIME
+    try:
+        if isNowInTimePeriod(ON_TIME, (ON_TIME + timedelta(minutes=0.5)), current_time):
+            print("Turning on LED")
+            power_on_relay(1)
+        if isNowInTimePeriod(OFF_TIME, (OFF_TIME + timedelta(minutes=0.5)), current_time):
+            print("Turning off LED")
+            power_off_relay(1)
+        time.sleep(3)
+    except Exception as e:
+        print("error: " + str(e) + ", no time set")
+        time.sleep(3)
+    
+def isNowInTimePeriod(startTime, endTime, nowTime): 
+    if startTime < endTime: 
+        return nowTime >= startTime and nowTime <= endTime 
+    else: 
+        return nowTime >= startTime or nowTime <= endTime 
 
 if __name__ == "__main__":
 
@@ -97,30 +143,22 @@ if __name__ == "__main__":
 
     while True:
         now = datetime.now().time()
-        print("Waiting for message")
-        message = listener.wait_for_message_on(channel)
-        message = decrypt(password, salt, message.message)
-        print("Received message: " + str(message))
+        message_thread = Thread(target=handle_pubnub_message, args=(listener, channel))
+        time_thread = Thread(target=schedule_thread)
+        time_thread.start()
+        message_thread.start()
 
-        if message == "LED is off, turning on": power_on_relay(1)
-        if message == "LED is on, turning off": power_off_relay(1)
-        if message == "Pump is off, turning on": power_on_relay(2)
-        if message == "Pump is on, turning off": power_off_relay(2)
+        # if the message thread is still running (listening), but time thread has finished, then the message thread is done
+        if message_thread.is_alive() and not time_thread.is_alive():
+            print("Message thread is dying")
+            message_thread.terminate()
+            message_thread.join()
 
-
-        if "Selected On Time:" in message:
-            selected_time = message.split(": ")[1]
-            on_time = datetime.strptime(selected_time, '%H:%M').time()
-            if now > on_time:
-                power_on_relay(1)
-
-        if "Selected Off Time:" in message:
-            selected_time = message.split(": ")[1]
-            off_time = datetime.strptime(selected_time, '%H:%M').time()
-            if now > off_time:
-                power_off_relay(1)
-
-        time.sleep(1)
+        time_thread.join()
+        print("Threads finished")
+        
+        print(f"Current Time: {now}")
+        time.sleep(3)
 
 
     
