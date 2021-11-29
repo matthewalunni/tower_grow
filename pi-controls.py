@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from base64 import b64decode
 from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2 
-from threading import Thread
+from threading import Timer
 
 
 DEVICE_BUS = 1
@@ -17,13 +17,19 @@ password = "lazydog"
 salt = "salt"
 ON_TIME, OFF_TIME = None, None
 
+class RepeatTimer(Timer):
+    def run(self):
+        while not self.finished.wait(self.interval):
+            self.function(*self.args,**self.kwargs)
+        print('Done')
+
 def initialize_pubnub(subscribe_key, publish_key, channel) -> PubNub:
     """This method initializes pubnub with the given keys and channel, and connects
 
     Args:
-        subscribe_key (str): [description]
-        publish_key (str): [description]
-        channel (str): [description]
+        subscribe_key (str): pubnub subscribe key
+        publish_key (str): pubnub publish key
+        channel (str): pubnub channel
 
     Returns:
         Pubnub: pubnub object
@@ -88,6 +94,13 @@ def decrypt(key, salt, ciphertext):
     return text
 
 def handle_pubnub_message(listener, channel):
+    """This method handles the pubnub message
+    
+    Args:
+        listener ([type]): listener object
+        channel ([type]): channel to be published to
+    """
+
     print("Waiting for Message")
     message = listener.wait_for_message_on(channel)
     message = decrypt(password, salt, message.message)
@@ -101,32 +114,56 @@ def handle_pubnub_message(listener, channel):
     if "Selected On Time:" in message:
         selected_time = message.split(": ")[1]
         global ON_TIME
-        ON_TIME = datetime.strptime(selected_time, '%H:%M').time()
+        ON_TIME = datetime.strptime(selected_time, '%H:%M')
     
     if "Selected Off Time:" in message:
         selected_time = message.split(": ")[1]
         global OFF_TIME
-        OFF_TIME = datetime.strptime(selected_time, '%H:%M').time()
+        OFF_TIME = datetime.strptime(selected_time, '%H:%M')
 
     return message
 
-def schedule_thread():
-    print("Checking Time")
-    current_time = datetime.now().time()
+def handle_schedule():
+    """This method handles the schedule"""
+    current_time = datetime.now()
     global ON_TIME, OFF_TIME
-    try:
-        if isNowInTimePeriod(ON_TIME, (ON_TIME + timedelta(minutes=0.5)), current_time):
-            print("Turning on LED")
-            power_on_relay(1)
-        if isNowInTimePeriod(OFF_TIME, (OFF_TIME + timedelta(minutes=0.5)), current_time):
-            print("Turning off LED")
-            power_off_relay(1)
-        time.sleep(3)
-    except Exception as e:
-        print("error: " + str(e) + ", no time set")
-        time.sleep(3)
+
+    print(f"Current time: {current_time}, ON_TIME: {ON_TIME}, OFF_TIME: {OFF_TIME}")
+
+    if ON_TIME is not None:
+        on_datetime = datetime.today().replace(hour=ON_TIME.hour, minute=ON_TIME.minute, second=0, microsecond=0)
+        try:
+            if isNowInTimePeriod(on_datetime, (on_datetime + timedelta(minutes=0.5)), current_time):
+                print(f"Turning on LED, {on_datetime}")
+                power_on_relay(1)
+                time.sleep(3)
+        except Exception as e:
+            print(f"Error: {str(e)}, on_datetime={on_datetime}")
+            time.sleep(3)
+    
+    if OFF_TIME is not None:
+        off_datetime = datetime.today().replace(hour=OFF_TIME.hour, minute=OFF_TIME.minute, second=0, microsecond=0)
+        try:
+            if isNowInTimePeriod(off_datetime, (off_datetime + timedelta(minutes=0.5)), current_time):
+                print(f"Turning off LED, {off_datetime}")
+                power_off_relay(1)
+                time.sleep(3)
+        except Exception as e:
+            print(f"Error: {str(e)}, off_datetime={off_datetime}")
+            time.sleep(3)
     
 def isNowInTimePeriod(startTime, endTime, nowTime): 
+    """This method checks if the current time is in the given time period
+    
+    Args:
+        startTime (datetime): start time of the time period
+        endTime (datetime): end time of the time period
+        nowTime (datetime): current time
+    
+    Returns:
+        bool: True if the current time is in the given time period, False otherwise"""
+        
+    print(f"Checking if {nowTime} is in the time period {startTime} - {endTime}")
     if startTime < endTime: 
         return nowTime >= startTime and nowTime <= endTime 
     else: 
@@ -143,22 +180,12 @@ if __name__ == "__main__":
 
     while True:
         now = datetime.now().time()
-        message_thread = Thread(target=handle_pubnub_message, args=(listener, channel))
-        time_thread = Thread(target=schedule_thread)
-        time_thread.start()
-        message_thread.start()
-
-        # if the message thread is still running (listening), but time thread has finished, then the message thread is done
-        if message_thread.is_alive() and not time_thread.is_alive():
-            print("Message thread is dying")
-            message_thread.terminate()
-            message_thread.join()
-
-        time_thread.join()
-        print("Threads finished")
-        
-        print(f"Current Time: {now}")
-        time.sleep(3)
+        timer = RepeatTimer(1, handle_schedule)
+        timer.start()
+        handle_pubnub_message(listener, channel)
+        time.sleep(2)
+        timer.cancel()
+        print(f"Current Time: {now}, end of while loop")
 
 
     
