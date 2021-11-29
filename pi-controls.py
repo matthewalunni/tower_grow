@@ -162,7 +162,7 @@ def isNowInTimePeriod(startTime, endTime, nowTime):
     
     Returns:
         bool: True if the current time is in the given time period, False otherwise"""
-        
+
     print(f"Checking if {nowTime} is in the time period {startTime} - {endTime}")
     if startTime < endTime: 
         return nowTime >= startTime and nowTime <= endTime 
@@ -179,13 +179,11 @@ if __name__ == "__main__":
     print(f"Connected To Pubnub: {channel}")
 
     while True:
-        now = datetime.now().time()
         timer = RepeatTimer(1, handle_schedule)
         timer.start()
         handle_pubnub_message(listener, channel)
         time.sleep(2)
         timer.cancel()
-        print(f"Current Time: {now}, end of while loop")
 
 
     
