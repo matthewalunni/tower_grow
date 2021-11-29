@@ -17,7 +17,7 @@
     "@react-navigation/bottom-tabs": "^6.0.9",
     "@react-navigation/native": "^6.0.6",
     "@react-navigation/native-stack": "^6.2.5",
-    "crypto-js": "3.1.9-1",
+    "crypto-js": "3.3.0",
     "elements": "^0.6.0",
     "icons": "^1.0.0",
     "pubnub-react": "^2.1.0",
