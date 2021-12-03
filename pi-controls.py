@@ -63,7 +63,7 @@ def power_on_relay(relay_pin):
     Args:
         relay_pin (int): pin number of the relay
     """
-    bus.write_byte_data(DEVICE_ADDRESS, relay_pin, 0xFF)
+    bus.write_byte_data(DEVICE_ADDRESS, relay_pin, 0x00)
 
 def power_off_relay(relay_pin):
     """This method powers off the relay
@@ -71,7 +71,7 @@ def power_off_relay(relay_pin):
     Args:
         relay_pin (int): pin number of the relay
     """
-    bus.write_byte_data(DEVICE_ADDRESS, relay_pin, 0x00)
+    bus.write_byte_data(DEVICE_ADDRESS, relay_pin, 0xFF)
 
 def decrypt(key, salt, ciphertext):
     """This method decrypts a value sent from CryptoJS.
