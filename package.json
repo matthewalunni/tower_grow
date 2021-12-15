@@ -20,7 +20,7 @@
     "crypto-js": "3.1.9-1",
     "elements": "^0.6.0",
     "icons": "^1.0.0",
-    "pubnub-react": "^2.1.0",
+    "pubnub-react": "^2.1.1",
     "react": "17.0.2",
     "react-native": "^0.66.3",
     "react-native-elements": "^3.4.2",
