@@ -1,6 +1,8 @@
 # Tower Grow
 ## Your Desktop Hydroponic Garden
-![drawing](https://github.com/matthewalunni/tower_grow/blob/master/images/splash.png?raw=true)
+<p align="center">
+<img src="https://github.com/matthewalunni/tower_grow/blob/master/images/splash.png?raw=true"/>
+</p>
 
 ## Hydroponics
 - Hydroponics refers to the art of gardening without soil. 
@@ -20,11 +22,17 @@
 ## Software
 ### How It Works
 - The mobile application is written in react native, and sends text instructions to a PubNub channel based on user inputs, the deviceitself is programmed using python on a raspberry pi 4b. 
-![mockup](https://github.com/matthewalunni/tower_grow/blob/master/images/mockups.png?raw=true)
+<p align="center">
+ <img src="https://github.com/matthewalunni/tower_grow/blob/master/images/mockups.png?raw=true"/>
+</p>
 
 ### Threading and Parallelism
 - Parallelism refers to performing multiple computations at the same time. The main execution splits into multiple threads, as illustrated by the image below.
-![threading](https://github.com/matthewalunni/tower_grow/blob/master/images/threading.png?raw=true)
+
+<p align="center">
+ <img src="https://github.com/matthewalunni/tower_grow/blob/master/images/threading.png?raw=true"/>
+</p>
+
 - There are two main processes (threads) at work in the program. 
 - The first thread is the method handle_pubnub_message (listener, channel). This method will listen for a message on a specified PubNub channel, and then respond to it accordingly.
 - The second thread is called handle_schedule(). This handles the scheduling feature by checking if on/off times are set. Following this, if the current time is equal to the specified on/off time, the program will output the correct action, either turning off the led lights, or turning on the led lights.
@@ -33,19 +41,23 @@
 ## Hardware
 ### Components
 ![ep099](https://github.com/matthewalunni/tower_grow/blob/master/images/ep099.png?raw=true) | ![pi](https://github.com/matthewalunni/tower_grow/blob/master/images/raspberrypi.png?raw=true) | ![pump](https://github.com/matthewalunni/tower_grow/blob/master/images/waterpump.png?raw=true) | ![led strip](https://github.com/matthewalunni/tower_grow/blob/master/images/ledstrip.png?raw=true) |
---- | --- | --- | --- |
+:---: | :---: | :---: | :---: |
 EP-0099 4 Channel Relay HAT | Raspberry Pi 4B | 5V USB Water Pump | LED Strip |
 
 ### Schematic 
-![schematic](https://github.com/matthewalunni/tower_grow/blob/master/images/schematic.png?raw=true)
+<p align="center">
+ <img src="https://github.com/matthewalunni/tower_grow/blob/master/images/schematic.png?raw=true)"/>
+</p>
 
 ## Final Design
-![final](https://github.com/matthewalunni/tower_grow/blob/master/images/finaldesign.png?raw=true)
+<p align="center">
+ <img src="https://github.com/matthewalunni/tower_grow/blob/master/images/finaldesign.png?raw=true"/>
+</p>
 
 ## Future Considerations
 PH Sensor | Ultrasonic Sensor |
---- | --- | 
-![ph](https://github.com/matthewalunni/tower_grow/blob/master/images/phsensor.png?raw=true) | ![ultrasonic](https://github.com/matthewalunni/tower_grow/blob/master/images/ultrasonic.png?raw=true) |
+:---: | :---: | 
+<img src="https://github.com/matthewalunni/tower_grow/blob/master/images/phsensor.png?raw=true"/> | <img src="https://github.com/matthewalunni/tower_grow/blob/master/images/ultrasonic.png?raw=true"/>|
 A PH sensor can be implemented for PH value detection and to control and monitor the needed PH value for the plants. | An ultrasonic sensor can be used to detect how much water is in the reservoir and how much water is needed. This information can be used to help the user calculate the quantity of nutrients to be added to the solution.
 
  
