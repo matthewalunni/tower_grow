@@ -46,7 +46,6 @@ EP-0099 4 Channel Relay HAT | Raspberry Pi 4B | 5V USB Water Pump | LED Strip |
 PH Sensor | Ultrasonic Sensor |
 --- | --- | 
 ![ph](https://github.com/matthewalunni/tower_grow/blob/master/images/phsensor.png?raw=true) | ![ultrasonic](https://github.com/matthewalunni/tower_grow/blob/master/images/ultrasonic.png?raw=true) |
-A PH sensor can be implemented for PH value detection and to control and monitor the needed PH value for the plants. | An ultrasonic sensor can be used to detect how much water is
-in the reservoir and how much water is needed. This information can be used to help the user calculate the quantity of nutrients to be added to the solution.
+A PH sensor can be implemented for PH value detection and to control and monitor the needed PH value for the plants. | An ultrasonic sensor can be used to detect how much water is in the reservoir and how much water is needed. This information can be used to help the user calculate the quantity of nutrients to be added to the solution.
 
  
