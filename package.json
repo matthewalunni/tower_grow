@@ -15,7 +15,7 @@
     "@fortawesome/react-native-fontawesome": "^0.2.7",
     "@react-native-community/datetimepicker": "^3.5.2",
     "@react-navigation/bottom-tabs": "^6.0.9",
-    "@react-navigation/native": "^6.0.6",
+    "@react-navigation/native": "^6.0.7",
     "@react-navigation/native-stack": "^6.2.5",
     "crypto-js": "3.3.0",
     "elements": "^0.6.0",
